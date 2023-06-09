@@ -1,9 +1,12 @@
 import React from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DevTool } from '@hookform/devtools';
+
+import { validation, handleKeyPress } from 'utils/validation';
 import { Input } from 'components/Input';
-import { Inputs } from 'types/Inputs';
 import { Select } from 'components/Select';
+import { Inputs } from 'types/Inputs';
+import { emailValidation, phoneValidation } from 'utils/regex';
 
 export const Form: React.FC = () => {
   const { register, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
@@ -14,45 +17,50 @@ export const Form: React.FC = () => {
   const doctors = ['Dentist', 'Nurse'];
   const doctorsNames = ['Kenny', 'Will'];
 
-  // console.log(watch("name"))
+  const emailCanBeSkipped = phoneValidation.test(watch("mobile number")) && watch("mobile number").length >= 13;
+  const phoneCanBeSkipped = emailValidation.test(watch("email"));
 
+  console.log(!phoneCanBeSkipped);
+  
   return (
     <>
      <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Input
         type="text"
-        value="name"
+        name="name"
         register={register}
         error={errors}
+        required={true}
       />
 
       <Input
         type="date"
-        value="date"
+        name="date"
         register={register}
         error={errors}
+        required={true}
        />
 
       <Select
-        parameter="sex"
+        name="sex"
         register={register}
-        value=''
+        value={watch("sex")}
         error={errors}
         required={true}
         data={sexData}
        />
 
       <Select
-        parameter="city"
+        name="city"
         register={register}
-        value=''
+        value={watch("city")}
         error={errors}
         required={true}
         data={cities}
       />
 
       <Select
-        parameter="speciality"
+        name="speciality"
         title="Doctor Speciality"
         register={register}
         value=''
@@ -61,9 +69,9 @@ export const Form: React.FC = () => {
       />
 
       <Select
-        parameter="doctor"
+        name="doctor"
         register={register}
-        value=''
+        value={watch("doctor")}
         error={errors}
         required={true}
         data={doctorsNames}
@@ -71,17 +79,24 @@ export const Form: React.FC = () => {
 
       <Input
         type="email"
-        value="email"
+        name="email"
         register={register}
         error={errors}
+        pattern = {validation.email}
+        required={!emailCanBeSkipped}
        />
 
       <Input
         type="tel"
-        value="mobile number"
+        name="mobile number"
+        placeholder="+380"
         register={register}
         error={errors}
         defaultValue='+380'
+        pattern = {validation.phone}
+        onKeyPress={handleKeyPress}
+        max={13}
+        required={!phoneCanBeSkipped}
        />
 
       <button type="submit" className='button is-success is-light'>

@@ -31,6 +31,10 @@ span {
 .required {
   color: #ff0000;
   margin-right: 1px;
+
+  &--invisible {
+    visibility: hidden;
+  }
 }
 
 /*# sourceMappingURL=Form.scss.css.map */

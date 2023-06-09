@@ -28,6 +28,9 @@ span {
   color: #ff0000;
   margin-right: 1px;
 }
+.required--invisible {
+  visibility: hidden;
+}
 
 
 #root {

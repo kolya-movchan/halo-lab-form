@@ -6,7 +6,7 @@ import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { Inputs } from 'types/Inputs';
 
 type Props = {
-  parameter: keyof Inputs,
+  name: keyof Inputs,
   title?: string,
   register: UseFormRegister<Inputs>,
   value: string,
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export const Select: React.FC<Props> = ({
-  parameter,
+  name,
   title,
   register,
   value = '',
@@ -24,7 +24,7 @@ export const Select: React.FC<Props> = ({
   required = false,
   data,
 }) => {
-  const name = parameter[0].toUpperCase() + parameter.slice(1);
+  const nameUpperCase = name[0].toUpperCase() + name.slice(1);
 
   return (
     <label>
@@ -32,20 +32,19 @@ export const Select: React.FC<Props> = ({
         {required && (
           <span className='required'>*</span>
         )}
-        <span>{title ? title : name}</span>
+        <span>{title ? title : nameUpperCase}</span>
       </div>
 
-      <div className="select"
-      >
+      <div className="select">
         <select
           className={classNames(
-            { 'error-container': error[parameter as keyof FieldErrors<Inputs>] }
+            { 'error-container': error[name as keyof FieldErrors<Inputs>] }
         )}
           value={value}
-          {...register(parameter, {
+          {...register(name, {
             required: {
               value: required,
-              message: `${name} is required`
+              message: `${nameUpperCase} is required`
             }
           })}
         >
@@ -60,7 +59,7 @@ export const Select: React.FC<Props> = ({
         </select>
       </div>
 
-      <p className='error'>{ error[parameter as keyof FieldErrors<Inputs>]?.message}</p>
+      <p className='error'>{ error[name as keyof FieldErrors<Inputs>]?.message}</p>
     </label>
   )
 }

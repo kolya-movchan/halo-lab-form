@@ -1,51 +1,71 @@
 /* eslint-disable import/no-unused-modules */
-import React from 'react'
+import React, { KeyboardEventHandler } from 'react'
 import classNames from 'classnames'
 
 import { FieldErrors, UseFormRegister } from 'react-hook-form'
 import { Inputs } from 'types/Inputs'
+import { DataFormat } from 'types/Validation'
 
 type Props = {
   type: string,
-  value: keyof Inputs,
+  name: keyof Inputs,
+  placeholder?: string,
   register: UseFormRegister<Inputs>,
   error: FieldErrors<Inputs>,
   defaultValue?: string,
+  pattern?: DataFormat,
+  onKeyPress?: KeyboardEventHandler<HTMLInputElement> | undefined,
+  max?: number,
+  required?: boolean
 }
 
 export const Input: React.FC<Props> = ({
   type = 'text',
-  value,
+  name,
+  placeholder,
   register,
   error,
   defaultValue = '',
+  pattern,
+  onKeyPress = undefined,
+  max,
+  required = false,
 }) => {
-  const name = value[0].toUpperCase() + value.slice(1);
+  const nameUpperCase = name[0].toUpperCase() + name.slice(1);
 
   return (
     <label>
       <div>
-        <span className='required'>*</span>
-        <span>{name}</span>
+        <span className={classNames(
+          'required',
+          { 'required--invisible': !required }
+        )}>*</span>
+        <span>{nameUpperCase}</span>
       </div>
 
       <input
         defaultValue={defaultValue}
         className={classNames(
           "input",
-          { 'error-container': error[value as keyof FieldErrors<Inputs>] }
+          { 'error-container': error[name as keyof FieldErrors<Inputs>] }
         )}
         type={type}
-        placeholder={value}
-        {...register(value, {
+        placeholder={placeholder ? placeholder : name}
+        {...register(name, {
           required: {
-            value: true,
-            message: `${name} is required`
-          }
+            value: required,
+            message: name === 'email' || name === 'mobile number'
+              ? `Email or Mobile number is required`
+              : `${nameUpperCase} is required`,
+          },
+
+          pattern,
         })}
+        onKeyPress={onKeyPress}
+        maxLength={max}
       />
 
-      <p className='error'>{ error[value as keyof FieldErrors<Inputs>]?.message}</p>
+      <p className='error'>{ error[name as keyof FieldErrors<Inputs>]?.message}</p>
     </label>
   )
 }
