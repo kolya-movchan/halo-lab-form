@@ -5,6 +5,7 @@
 form {
   display: flex;
   flex-direction: column;
+  min-width: 30%;
   gap: 5px;
   // align-items: center;
   // justify-content: center;
@@ -28,6 +29,11 @@ select {
 span {
   color: #333; /* Default color */
   font-weight: bold; /* Default font weight */
+}
+
+.required {
+  color: #ff0000;
+  margin-right: 1px;
 }
 
 /*# sourceMappingURL=Form.scss.css.map */

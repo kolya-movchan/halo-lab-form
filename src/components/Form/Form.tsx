@@ -1,63 +1,82 @@
 import React from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
+import { DevTool } from '@hookform/devtools';
 
 type Inputs = {
-  example: string,
-  exampleRequired: string,
+  name: string,
+  date: string,
   sex: string,
   city: string,
   speciality: string,
   doctorName: string,
   email: string,
+  phone: string,
 };
 
 export const Form: React.FC = () => {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<Inputs>();
+  const { register, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
-  console.log(watch("example")) // watch input value by passing the name of it
-  // console.log(watch("exampleRequired")) // watch input value by passing the name of it
+  console.log(watch("name"))
 
   return (
-    /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <>
+     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <label>
-        <span>Name</span>
+        <div>
+          <span className='required'>*</span>
+          <span>Name</span>
+        </div>
 
         <input
           defaultValue=""
           className="input"
           type="text"
           placeholder='name'
-          // {...register("example")}
+          {...register("name", {
+            required: {
+              value: true,
+              message: 'Name is required'
+            }
+          })}
         />
       </label>
 
       <label>
-        <span>Email</span>
+        <div>
+          <span className='required'>*</span>
+          <span>Date</span>
+        </div>
 
         <input
-          defaultValue=""
+          type='date'
           className="input"
-          type="email"
-          placeholder='email'
-          // {...register("email")}
+          {...register("date", {
+            required: {
+              value: true,
+              message: 'Date is required'
+            }
+          })}
         />
+        {/* {errors.date && <span>This field is required</span>} */}
       </label>
 
       <label>
-        <span>Date</span>
-
-        <input type='date' {...register("exampleRequired", { required: true })} className="input" />
-        {/* errors will return when field validation fails  */}
-        {errors.exampleRequired && <span>This field is required</span>}
-      </label>
-
-      <label>
-        <span>Sex</span>
+        <div>
+          <span className='required'>*</span>
+          <span>Sex</span>
+        </div>
 
         <div className="select">
-          <select {...register("sex")} value="" >
+          <select
+            value=""
+            {...register("sex", {
+              required: {
+                value: true,
+                message: 'Sex is required'
+              }
+            })}
+          >
             <option value="" disabled>Choose</option>
             <option value="male">male</option>
             <option value="female">female</option>
@@ -66,10 +85,21 @@ export const Form: React.FC = () => {
       </label>
 
         <label>
-          <span>City</span>
+          <div>
+            <span className='required'>*</span>
+            <span>City</span>
+          </div>
 
           <div className="select">
-            <select {...register("city")} value="">
+            <select
+              value=""
+              {...register("city", {
+                required: {
+                  value: true,
+                  message: 'City is required'
+                }
+              })}
+            >
               <option value="" disabled>Choose</option>
               <option value="Kyiv">Kyiv</option>
               <option value="Lviv">Lviv</option>
@@ -78,7 +108,7 @@ export const Form: React.FC = () => {
         </label>
 
       <label>
-        <span>Speciality</span>
+        <span>Doctor Speciality</span>
 
         <div className="select">
           <select {...register("speciality")} value="">
@@ -90,10 +120,21 @@ export const Form: React.FC = () => {
       </label>
 
       <label>
-        <span>Doctor</span>
+        <div>
+          <span className='required'>*</span>
+          <span>Doctor</span>
+        </div>
 
         <div className="select">
-          <select {...register("doctorName")} value="">
+        <select
+          value=""
+          {...register("doctorName", {
+            required: {
+              value: true,
+              message: 'Doctor is required'
+            }
+          })}
+        >
             <option value="" disabled>Choose</option>
             <option value="Michael">Michael</option>
             <option value="Jane">Jane</option>
@@ -101,10 +142,53 @@ export const Form: React.FC = () => {
         </div>
       </label>
 
-      <button type="submit" className='button is-success is-light' disabled>
+      <label>
+        <div>
+          <span className='required'>*</span>
+          <span>Email</span>
+        </div>
+
+        <input
+          defaultValue=""
+          className="input"
+          type="email"
+          placeholder='email'
+          {...register("email", {
+            required: {
+              value: true,
+              message: 'Email is required'
+            }
+          })}
+        />
+      </label>
+
+      <label>
+        <div>
+          <span className='required'>*</span>
+          <span>Mobile number</span>
+        </div>
+
+        <input
+          defaultValue="+380"
+          className="input"
+          type="tel"
+          placeholder='Mobile number'
+          {...register("phone", {
+            required: {
+              value: true,
+              message: 'Phone is required'
+            }
+          })}
+        />
+      </label>
+
+      <button type="submit" className='button is-success is-light'>
         Submit
       </button>
-    </form>
+     </form>
+
+      <DevTool control={control} />
+    </>
   );
 }
 
