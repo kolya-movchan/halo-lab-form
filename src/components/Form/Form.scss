@@ -1,4 +1,33 @@
 // html {
 //   background-color: red;
 // }
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  // align-items: center;
+  // justify-content: center;
+  // gap: 10px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+
+  &:last-of-type {
+    margin-bottom: 10px;
+  }
+}
+
+select {
+  width: 100%;
+  color: grey;
+}
+
+span {
+  color: #333; /* Default color */
+  font-weight: bold; /* Default font weight */
+}
+
 /*# sourceMappingURL=Form.scss.css.map */

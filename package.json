@@ -26,6 +26,7 @@
     "watch-css": "onchange '**/*.scss' -- sass ./src/styles/main.scss ./src/styles/index.css"
   },
   "dependencies": {
+    "bulma": "^0.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",

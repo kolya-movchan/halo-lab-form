@@ -1,3 +1,35 @@
+@import 'bulma/css/bulma.css';
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+}
+label:last-of-type {
+  margin-bottom: 10px;
+}
+
+select {
+  width: 100%;
+  color: grey;
+}
+
+span {
+  color: #333; /* Default color */
+  font-weight: bold; /* Default font weight */
+}
+
+
+body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 body {
   background-color: lightblue;
