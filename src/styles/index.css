@@ -3,7 +3,6 @@ form {
   display: flex;
   flex-direction: column;
   min-width: 30%;
-  gap: 5px;
 }
 
 label {
@@ -17,11 +16,12 @@ label:last-of-type {
 select {
   width: 100%;
   color: grey;
+  box-sizing: border-box;
 }
 
 span {
-  color: #333; /* Default color */
-  font-weight: bold; /* Default font weight */
+  color: #333;
+  font-weight: bold;
 }
 
 .required {
@@ -35,6 +35,18 @@ span {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.error {
+  min-height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: red;
+}
+
+input.error-container,
+select.error-container {
+  border: 2px solid red;
 }
 
 body {

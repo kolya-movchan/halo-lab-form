@@ -1,12 +1,8 @@
-// html {
-//   background-color: red;
-// }
-
 form {
   display: flex;
   flex-direction: column;
   min-width: 30%;
-  gap: 5px;
+  // gap: 5px;
   // align-items: center;
   // justify-content: center;
   // gap: 10px;
@@ -24,11 +20,12 @@ label {
 select {
   width: 100%;
   color: grey;
+  box-sizing: border-box;
 }
 
 span {
-  color: #333; /* Default color */
-  font-weight: bold; /* Default font weight */
+  color: #333;
+  font-weight: bold;
 }
 
 .required {

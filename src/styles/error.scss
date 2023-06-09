@@ -1,0 +1,11 @@
+.error {
+  min-height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: red;
+}
+
+input.error-container,
+select.error-container {
+  border: 2px solid red;
+}

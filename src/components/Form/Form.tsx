@@ -1,186 +1,88 @@
 import React from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DevTool } from '@hookform/devtools';
-
-type Inputs = {
-  name: string,
-  date: string,
-  sex: string,
-  city: string,
-  speciality: string,
-  doctorName: string,
-  email: string,
-  phone: string,
-};
+import { Input } from 'components/Input';
+import { Inputs } from 'types/Inputs';
+import { Select } from 'components/Select';
 
 export const Form: React.FC = () => {
   const { register, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
-  console.log(watch("name"))
+  const sexData = ['Male', 'Female'];
+  const cities = ['Kyiv', 'Lviv'];
+  const doctors = ['Dentist', 'Nurse'];
+  const doctorsNames = ['Kenny', 'Will'];
+
+  // console.log(watch("name"))
 
   return (
     <>
      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <label>
-        <div>
-          <span className='required'>*</span>
-          <span>Name</span>
-        </div>
+      <Input
+        type="text"
+        value="name"
+        register={register}
+        error={errors}
+      />
 
-        <input
-          defaultValue=""
-          className="input"
-          type="text"
-          placeholder='name'
-          {...register("name", {
-            required: {
-              value: true,
-              message: 'Name is required'
-            }
-          })}
-        />
-      </label>
+      <Input
+        type="date"
+        value="date"
+        register={register}
+        error={errors}
+       />
 
-      <label>
-        <div>
-          <span className='required'>*</span>
-          <span>Date</span>
-        </div>
+      <Select
+        parameter="sex"
+        register={register}
+        value=''
+        error={errors}
+        required={true}
+        data={sexData}
+       />
 
-        <input
-          type='date'
-          className="input"
-          {...register("date", {
-            required: {
-              value: true,
-              message: 'Date is required'
-            }
-          })}
-        />
-        {/* {errors.date && <span>This field is required</span>} */}
-      </label>
+      <Select
+        parameter="city"
+        register={register}
+        value=''
+        error={errors}
+        required={true}
+        data={cities}
+      />
 
-      <label>
-        <div>
-          <span className='required'>*</span>
-          <span>Sex</span>
-        </div>
+      <Select
+        parameter="speciality"
+        title="Doctor Speciality"
+        register={register}
+        value=''
+        error={errors}
+        data={doctors}
+      />
 
-        <div className="select">
-          <select
-            value=""
-            {...register("sex", {
-              required: {
-                value: true,
-                message: 'Sex is required'
-              }
-            })}
-          >
-            <option value="" disabled>Choose</option>
-            <option value="male">male</option>
-            <option value="female">female</option>
-          </select>
-        </div>
-      </label>
+      <Select
+        parameter="doctor"
+        register={register}
+        value=''
+        error={errors}
+        required={true}
+        data={doctorsNames}
+      />
 
-        <label>
-          <div>
-            <span className='required'>*</span>
-            <span>City</span>
-          </div>
+      <Input
+        type="email"
+        value="email"
+        register={register}
+        error={errors}
+       />
 
-          <div className="select">
-            <select
-              value=""
-              {...register("city", {
-                required: {
-                  value: true,
-                  message: 'City is required'
-                }
-              })}
-            >
-              <option value="" disabled>Choose</option>
-              <option value="Kyiv">Kyiv</option>
-              <option value="Lviv">Lviv</option>
-            </select>
-          </div>
-        </label>
-
-      <label>
-        <span>Doctor Speciality</span>
-
-        <div className="select">
-          <select {...register("speciality")} value="">
-            <option value="" disabled>Choose</option>
-            <option value="Dentist">Dentist</option>
-            <option value="Nurse">Nurse</option>
-          </select>
-        </div>
-      </label>
-
-      <label>
-        <div>
-          <span className='required'>*</span>
-          <span>Doctor</span>
-        </div>
-
-        <div className="select">
-        <select
-          value=""
-          {...register("doctorName", {
-            required: {
-              value: true,
-              message: 'Doctor is required'
-            }
-          })}
-        >
-            <option value="" disabled>Choose</option>
-            <option value="Michael">Michael</option>
-            <option value="Jane">Jane</option>
-          </select>
-        </div>
-      </label>
-
-      <label>
-        <div>
-          <span className='required'>*</span>
-          <span>Email</span>
-        </div>
-
-        <input
-          defaultValue=""
-          className="input"
-          type="email"
-          placeholder='email'
-          {...register("email", {
-            required: {
-              value: true,
-              message: 'Email is required'
-            }
-          })}
-        />
-      </label>
-
-      <label>
-        <div>
-          <span className='required'>*</span>
-          <span>Mobile number</span>
-        </div>
-
-        <input
-          defaultValue="+380"
-          className="input"
-          type="tel"
-          placeholder='Mobile number'
-          {...register("phone", {
-            required: {
-              value: true,
-              message: 'Phone is required'
-            }
-          })}
-        />
-      </label>
+      <Input
+        type="tel"
+        value="mobile number"
+        register={register}
+        error={errors}
+        defaultValue='+380'
+       />
 
       <button type="submit" className='button is-success is-light'>
         Submit
