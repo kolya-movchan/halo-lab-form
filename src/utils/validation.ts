@@ -1,8 +1,7 @@
 import { Validation } from 'types/Validation'
 import { Error } from '../types/Error'
-import { emailValidation, nameValidation, phoneValidation } from './regex'
+import { dateValidation, emailValidation, nameValidation, phoneValidation } from './regex'
 import { isAfter } from 'date-fns';
-
 
 export const validation: Validation = {
   name: {
@@ -15,7 +14,7 @@ export const validation: Validation = {
   
     if (isFutureDate) {
       return {
-        value: /^(?![\s\S])/,
+        value: dateValidation,
         message: Error.DATE,
       };
     }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DevTool } from '@hookform/devtools';
 
@@ -7,18 +7,44 @@ import { Input } from 'components/Input';
 import { Select } from 'components/Select';
 import { Inputs } from 'types/Inputs';
 import { emailValidation, phoneValidation } from 'utils/regex';
+import { City } from 'types/City';
+import { Sex } from 'types/Sex';
+import { Speciality } from 'types/Speciality';
+import { Doctor } from 'types/Doctor';
+import { getCities, getDoctors, getSpeciality } from 'api/request';
 
 export const Form: React.FC = () => {
   const { register, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
-  const sexData = ['Male', 'Female'];
-  const cities = ['Kyiv', 'Lviv'];
-  const doctors = ['Dentist', 'Nurse'];
-  const doctorsNames = ['Kenny', 'Will'];
+  const sexData: Sex[] = [{ id: 1, name: 'Male' }, { id: 2, name: 'Female' }];
+  const [cities, setCities] = useState<City[]>([]);
+  const [specialities, setSpecialities] = useState<Speciality[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
 
-  const emailCanBeSkipped = phoneValidation.test(watch("mobile number")) && watch("mobile number").length >= 13;
+  const phone = watch("mobile number");
+
+  const emailCanBeSkipped = phoneValidation.test(phone) && phone.length >= 12;
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
+  const bothAreCorrect = emailCanBeSkipped && phoneCanBeSkipped;
+
+  const doctorsWithInfo = doctors.map(doctor => {
+    const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
+
+    return {
+      ...doctor,
+      speciality: targetSpeciality?.name
+    }
+  })
+
+  console.log(doctorsWithInfo);
+  
+
+  useEffect(() => {
+    getCities(setCities);
+    getSpeciality(setSpecialities);
+    getDoctors(setDoctors);
+  }, [])
   
   return (
     <>
@@ -65,9 +91,9 @@ export const Form: React.FC = () => {
         name="speciality"
         title="Doctor Speciality"
         register={register}
-        value=''
+        value={watch("speciality")}
         error={errors}
-        data={doctors}
+        data={specialities}
       />
 
       <Select
@@ -76,7 +102,7 @@ export const Form: React.FC = () => {
         value={watch("doctor")}
         error={errors}
         required={true}
-        data={doctorsNames}
+        data={doctorsWithInfo}
       />
 
       <Input
@@ -85,7 +111,7 @@ export const Form: React.FC = () => {
         register={register}
         error={errors}
         pattern = {validation.email}
-        required={!emailCanBeSkipped}
+        required={!emailCanBeSkipped || bothAreCorrect}
        />
 
       <Input
@@ -98,7 +124,7 @@ export const Form: React.FC = () => {
         pattern = {validation.phone}
         onKeyPress={handleKeyPress}
         max={13}
-        required={!phoneCanBeSkipped}
+        required={!phoneCanBeSkipped || bothAreCorrect }
        />
 
       <button type="submit" className='button is-success is-light'>
