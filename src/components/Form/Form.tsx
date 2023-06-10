@@ -10,8 +10,9 @@ import { emailValidation, phoneValidation } from 'utils/regex';
 import { City } from 'types/City';
 import { Sex } from 'types/Sex';
 import { Speciality } from 'types/Speciality';
-import { Doctor } from 'types/Doctor';
+import { Doctor, DoctorWithInfo } from 'types/Doctor';
 import { getCities, getDoctors, getSpeciality } from 'api/request';
+import { isUnderage } from 'utils/ageCalculator';
 
 export const Form: React.FC = () => {
   const { register, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
@@ -21,30 +22,55 @@ export const Form: React.FC = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [specialities, setSpecialities] = useState<Speciality[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [doctorsWithInfo, setDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
+  const [visibleDoctorsWithInfo, setVisibleDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
 
   const phone = watch("mobile number");
+  const date = watch("date");
+
+  const child = date ? isUnderage(date): false;
 
   const emailCanBeSkipped = phoneValidation.test(phone) && phone.length >= 12;
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
   const bothAreCorrect = emailCanBeSkipped && phoneCanBeSkipped;
 
-  const doctorsWithInfo = doctors.map(doctor => {
-    const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
-
-    return {
-      ...doctor,
-      speciality: targetSpeciality?.name
-    }
-  })
-
-  console.log(doctorsWithInfo);
-  
+  const updateVisibleDoctors = (updates: DoctorWithInfo[]) => {
+    setVisibleDoctorsWithInfo([...updates]); // Create a new array to trigger re-render
+  };
 
   useEffect(() => {
     getCities(setCities);
     getSpeciality(setSpecialities);
     getDoctors(setDoctors);
   }, [])
+
+  useEffect(() => {
+    const doctorsExperience = doctors.map(doctor => {
+    const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
+  
+      return {
+        ...doctor,
+        speciality: targetSpeciality?.name || 'undefined specialist'
+      }
+    });
+
+    setDoctorsWithInfo(doctorsExperience);
+    setVisibleDoctorsWithInfo(doctorsExperience);
+  }, [doctors, specialities])
+
+  useEffect(() => {
+    if (child) {
+      const pedetiatriciansFirst = [...doctorsWithInfo].filter(doctor => doctor.isPediatrician);
+
+      updateVisibleDoctors(pedetiatriciansFirst);
+
+    } else if (date) {
+      const noPedetiatricians = [...doctorsWithInfo].filter(doctor => !doctor.isPediatrician);
+
+      updateVisibleDoctors(noPedetiatricians);
+    }
+
+  }, [child, date])
   
   return (
     <>
@@ -102,7 +128,7 @@ export const Form: React.FC = () => {
         value={watch("doctor")}
         error={errors}
         required={true}
-        data={doctorsWithInfo}
+        data={visibleDoctorsWithInfo}
       />
 
       <Input
