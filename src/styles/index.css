@@ -2,7 +2,7 @@
 form {
   display: flex;
   flex-direction: column;
-  min-width: 30%;
+  min-width: 50%;
 }
 
 label {

@@ -16,6 +16,7 @@ type Props = {
   pattern?: DataFormat,
   onKeyPress?: KeyboardEventHandler<HTMLInputElement> | undefined,
   max?: number,
+  min?: number,
   required?: boolean
 }
 
@@ -29,6 +30,7 @@ export const Input: React.FC<Props> = ({
   pattern,
   onKeyPress = undefined,
   max,
+  min = 0,
   required = false,
 }) => {
   const nameUpperCase = name[0].toUpperCase() + name.slice(1);
@@ -63,6 +65,7 @@ export const Input: React.FC<Props> = ({
         })}
         onKeyPress={onKeyPress}
         maxLength={max}
+        minLength={min}
       />
 
       <p className='error'>{ error[name as keyof FieldErrors<Inputs>]?.message}</p>

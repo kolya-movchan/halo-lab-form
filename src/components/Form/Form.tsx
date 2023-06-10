@@ -2,7 +2,7 @@ import React from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DevTool } from '@hookform/devtools';
 
-import { validation, handleKeyPress } from 'utils/validation';
+import { validation, handleKeyPress, validateInput } from 'utils/validation';
 import { Input } from 'components/Input';
 import { Select } from 'components/Select';
 import { Inputs } from 'types/Inputs';
@@ -19,8 +19,6 @@ export const Form: React.FC = () => {
 
   const emailCanBeSkipped = phoneValidation.test(watch("mobile number")) && watch("mobile number").length >= 13;
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
-
-  console.log(!phoneCanBeSkipped);
   
   return (
     <>
@@ -31,6 +29,9 @@ export const Form: React.FC = () => {
         register={register}
         error={errors}
         required={true}
+        pattern={validation.name}
+        max={30}
+        onKeyPress={validateInput}
       />
 
       <Input
@@ -39,6 +40,7 @@ export const Form: React.FC = () => {
         register={register}
         error={errors}
         required={true}
+        pattern={validation.date(watch('date'))}
        />
 
       <Select
