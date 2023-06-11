@@ -4,7 +4,6 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 import { validation, handleKeyPress, validateInput } from 'utils/validation';
 import { Input } from 'components/Input';
 import { Select } from 'components/Select';
@@ -19,7 +18,7 @@ import { getCurrentAge, isUnderage } from 'utils/ageCalculator';
 import { Logo } from 'components/Logo';
 
 export const Form: React.FC = () => {
-  const { register, setValue, handleSubmit, watch, reset, formState: { errors }, control } = useForm<Inputs>();
+  const { register, setValue, handleSubmit, watch, reset, formState: { errors } } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = data => {
     console.log(data);
     toast.success('Form submitted successfully!');

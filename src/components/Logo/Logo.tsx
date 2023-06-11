@@ -11,6 +11,7 @@ export const Logo: React.FC<Props> = ({ isSuccess }) => {
       'logo-container',
       { 'logo-container--success': isSuccess }
     )}>
+
      <img
        src="./halo-lab-logo.svg"
        alt="halo-lab"
@@ -18,4 +19,5 @@ export const Logo: React.FC<Props> = ({ isSuccess }) => {
      />
    </div>
   )
+
 }

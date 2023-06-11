@@ -26,6 +26,7 @@
     "watch-css": "onchange '**/*.scss' -- sass ./src/styles/main.scss ./src/styles/index.css"
   },
   "dependencies": {
+    "@types/react-lazyload": "^3.2.0",
     "bulma": "^0.9.4",
     "classnames": "^2.3.2",
     "date-fns": "^2.30.0",
