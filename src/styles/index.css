@@ -33,23 +33,42 @@ span {
 }
 
 
+.logo-container {
+  height: 300px;
+  width: 300px;
+  border-radius: 90%;
+}
+.logo-container--success {
+  background-color: rgb(81, 219, 81);
+}
+.logo-container--fail {
+  background-color: #ff0000;
+}
+
+.logo {
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+}
+
 #root {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 50px;
 }
 
 .error {
   min-height: 20px;
   font-size: 12px;
   font-weight: bold;
-  color: red;
+  color: #ff0000;
 }
 
 input.error-container,
 select.error-container {
-  border: 2px solid red;
+  border: 2px solid #ff0000;
 }
 
 body {

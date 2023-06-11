@@ -1,7 +1,9 @@
 /* eslint-disable import/no-unused-modules */
 import React, { useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
-import { DevTool } from '@hookform/devtools';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 import { validation, handleKeyPress, validateInput } from 'utils/validation';
 import { Input } from 'components/Input';
@@ -14,10 +16,19 @@ import { Speciality } from 'types/Speciality';
 import { Doctor, DoctorWithInfo } from 'types/Doctor';
 import { getCities, getDoctors, getSpeciality } from 'api/request';
 import { getCurrentAge, isUnderage } from 'utils/ageCalculator';
+import { Logo } from 'components/Logo';
 
 export const Form: React.FC = () => {
-  const { register, setValue, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
+  const { register, setValue, handleSubmit, watch, reset, formState: { errors }, control } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = data => {
+    console.log(data);
+    toast.success('Form submitted successfully!');
+    reset();
+    setIsSuccess(true);
+    setTimeout(() => {
+      setIsSuccess(false);
+    }, 6300);
+  };
 
   const sexData: Sex[] = [{ id: 1, name: 'Male' }, { id: 2, name: 'Female' }];
   const [cities, setCities] = useState<City[]>([]);
@@ -27,6 +38,7 @@ export const Form: React.FC = () => {
   const [doctorsWithInfo, setDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
   const [visibleDoctors, setvisibleDoctors] = useState<DoctorWithInfo[]>([]);
   const [isDoctorPickedFirst, setIsDoctorPickedFirst] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const phone = watch("mobile number");
   const date = watch("date");
@@ -245,12 +257,17 @@ export const Form: React.FC = () => {
         required={!phoneCanBeSkipped || bothAreCorrect }
        />
 
-      <button type="submit" className='button is-success is-light'>
+      <button
+        type="submit"
+        className='button is-success is-light button-submit'
+        style={{ width: '100px', margin: '0 auto' }}
+      >
         Submit
       </button>
      </form>
 
-      <DevTool control={control} />
+     <ToastContainer />
+     <Logo isSuccess={isSuccess} />
     </>
   );
 }
