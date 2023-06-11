@@ -1,5 +1,5 @@
 {
-  "name": "vite-react-ts",
+  "name": "halo-lab-form",
   "version": "0.0.0",
   "description": "React Typescript Form Test Task",
   "repository": {
@@ -23,7 +23,7 @@
     "lint": "eslint --cache ./src",
     "watch-css": "onchange '**/*.scss' -- sass ./src/styles/main.scss ./src/styles/index.css",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b master -d build"
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@types/react-lazyload": "^3.2.0",
