@@ -28,15 +28,9 @@ import svgrPlugin from 'vite-plugin-svgr';
 export default defineConfig({
   envDir: './env',
   plugins: [react(), tsconfigPaths(), svgrPlugin()],
-  /* If proxy is needed
-  server: {
-    proxy: {
-      "/api": "localhost:8080"
-    }
-  },
-  */
+  base: "/halo-lab-form",
+
   build: {
     sourcemap: true,
-    outDir: 'build', // Change the output folder name to 'build'
   },
 });
