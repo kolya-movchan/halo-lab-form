@@ -1,7 +1,7 @@
 {
   "name": "vite-react-ts",
   "version": "0.0.0",
-  "description": "React Typescript Starter Template with Vite",
+  "description": "React Typescript Form Test Task",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uchihamalolan/vite-react-ts.git"
@@ -9,12 +9,10 @@
   "keywords": [
     "vite",
     "react",
-    "starter",
-    "template"
+    "form"
   ],
-  "author": "Malolan B. <uchihamalolan@gmail.com> (https://twitter.com/malolan12)",
   "license": "MIT",
-  "homepage": "https://github.com/uchihamalolan/vite-react-ts",
+  "homepage": "https://kolya-movchan.github.io/halo-lab-form",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -23,13 +21,16 @@
     "commit": "commit",
     "format": "prettier --write --ignore-unknown .",
     "lint": "eslint --cache ./src",
-    "watch-css": "onchange '**/*.scss' -- sass ./src/styles/main.scss ./src/styles/index.css"
+    "watch-css": "onchange '**/*.scss' -- sass ./src/styles/main.scss ./src/styles/index.css",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -b master -d build"
   },
   "dependencies": {
     "@types/react-lazyload": "^3.2.0",
     "bulma": "^0.9.4",
     "classnames": "^2.3.2",
     "date-fns": "^2.30.0",
+    "gh-pages": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
