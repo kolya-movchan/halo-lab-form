@@ -26,7 +26,6 @@
     "deploy": "gh-pages -d build"
   },
   "dependencies": {
-    "@types/react-lazyload": "^3.2.0",
     "bulma": "^0.9.4",
     "classnames": "^2.3.2",
     "date-fns": "^2.30.0",
