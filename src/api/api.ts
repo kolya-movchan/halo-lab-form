@@ -17,30 +17,3 @@ export async function fetchGet<T>(endpoint: string): Promise<T> {
     throw error;
   }
 }
-
-
-// const BASE_URL = 'https://run.mocky.io/v3';
-
-// type RequestMethod = 'GET';
-
-// function request<T>(
-//   url: string,
-//   method: RequestMethod,
-// ): Promise<T> {
-//   const options: RequestInit = { method };
-
- 
-// }
-
-// export const item = {
-//   get: function <T>(url: string) {
-//     return request<T>(url, 'GET');
-//   },
-// };
-
-
-
-// function fetchGet(url: string) {
-//   return fetch(BASE_URL + url, options)
-//   .then(response => response.json());
-// }

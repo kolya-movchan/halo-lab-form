@@ -11,9 +11,15 @@ export const getCities = (dispatch: React.Dispatch<React.SetStateAction<City[]>>
     })
 };
 
-export const getSpeciality = (dispatch: React.Dispatch<React.SetStateAction<Speciality[]>>) => {
+export const getSpeciality = (
+  dispatch: React.Dispatch<React.SetStateAction<Speciality[]>>,
+  dispatchVisible: React.Dispatch<React.SetStateAction<Speciality[]>>
+) => {
   fetchGet<Speciality[]>('e8897b19-46a0-4124-8454-0938225ee9ca')
-    .then((speciality) => dispatch(speciality))
+    .then((speciality) => {
+      dispatch(speciality);
+      dispatchVisible(speciality);
+    })
     .catch(error => {
       //error logic
     })

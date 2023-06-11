@@ -13,10 +13,10 @@ import { Sex } from 'types/Sex';
 import { Speciality } from 'types/Speciality';
 import { Doctor, DoctorWithInfo } from 'types/Doctor';
 import { getCities, getDoctors, getSpeciality } from 'api/request';
-import { isUnderage } from 'utils/ageCalculator';
+import { getCurrentAge, isUnderage } from 'utils/ageCalculator';
 
 export const Form: React.FC = () => {
-  const { register, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
+  const { register, setValue, handleSubmit, watch, formState: { errors }, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
   const sexData: Sex[] = [{ id: 1, name: 'Male' }, { id: 2, name: 'Female' }];
@@ -25,32 +25,32 @@ export const Form: React.FC = () => {
   const [visibleSpecialities, setVisibleSpecialities] = useState<Speciality[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorsWithInfo, setDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
-  const [visibleDoctorsWithInfo, setVisibleDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
+  const [visibleDoctors, setvisibleDoctors] = useState<DoctorWithInfo[]>([]);
+  const [isDoctorPickedFirst, setIsDoctorPickedFirst] = useState(false);
 
   const phone = watch("mobile number");
   const date = watch("date");
   const city = watch("city");
+  const sex = watch("sex");
+  const speciality = watch("speciality");
+  const doctor = watch("doctor");
 
   const child = date ? isUnderage(date): false;
+  const currentAge = getCurrentAge(date);
 
   const emailCanBeSkipped = phoneValidation.test(phone) && phone.length >= 12;
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
   const bothAreCorrect = emailCanBeSkipped && phoneCanBeSkipped;
 
-  const updateVisibleDoctors = (updatesDoctor: DoctorWithInfo[], updatesSpecialities: Speciality[] = [] ) => {
-    setVisibleDoctorsWithInfo([...updatesDoctor]); // Create a new array to trigger re-render
-    setVisibleSpecialities([...updatesSpecialities])
-  };
-
   useEffect(() => {
     getCities(setCities);
-    getSpeciality(setSpecialities);
+    getSpeciality(setSpecialities, setVisibleSpecialities);
     getDoctors(setDoctors);
   }, [])
 
   useEffect(() => {
     const doctorsExperience = doctors.map(doctor => {
-      const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
+    const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
     
         return {
           ...doctor,
@@ -59,90 +59,110 @@ export const Form: React.FC = () => {
     });
 
     setDoctorsWithInfo(doctorsExperience);
-    setVisibleDoctorsWithInfo(doctorsExperience);
-    setVisibleSpecialities(specialities);
-  }, [doctors, specialities])
+    setvisibleDoctors(doctorsExperience);
+  }, [doctors, specialities]);
 
-  const verifyAllData = () => {
-    const newDoctors: DoctorWithInfo[] = [];
-    const newSpecialities: Speciality[] = [];
 
-    const currentCityId = cities.find(cityItem => cityItem.name === city)?.id;
+  function filterDoctorsByProperty(doctorsArray: DoctorWithInfo[], propertyName: string, propertyValue: boolean | number) {
+    return doctorsArray.filter(doctor => doctor[propertyName as keyof DoctorWithInfo] === propertyValue);
+  }
 
-    function filterDoctorsByProperty(doctorsArray: DoctorWithInfo[], propertyName: string, propertyValue: boolean | number) {
-      return [...doctorsArray].filter(doctor => doctor[propertyName as keyof DoctorWithInfo] === propertyValue);
-    }
-
-    function filterSpecialitiesByDoctors(specialitiesArray: Speciality[], doctorsArray: DoctorWithInfo[]) {
-      return [...specialitiesArray].filter(speciality => {
-        return doctorsArray.some(doctor => doctor.specialityId === speciality.id);
-      });
-    }
-
-    function updateSortedData(doctorsArray: DoctorWithInfo[], specialitiesArray: Speciality[]) {
-      newDoctors.push(...doctorsArray);
-      newSpecialities.push(...specialitiesArray);
-    }
-
-    function updateVisibleDoctorsWithCity() {
-      const doctorsSortedByCity = filterDoctorsByProperty(newDoctors, 'cityId', currentCityId as number);
-      const updatedSpecialities = filterSpecialitiesByDoctors(newSpecialities, doctorsSortedByCity);
-
-      updateVisibleDoctors(doctorsSortedByCity, updatedSpecialities);
-    }
+  const filterAllDoctors = () => {
+    let filteredDoctors = [...doctorsWithInfo];
+    const currentCityId = cities.find(cityItem => cityItem.name === city)?.id || 0;
+    const currentSpecialityId = specialities.find(specialityItem => specialityItem.name === speciality)?.id || 0;
 
     if (child) {
-      const pedetiatriciansFirst = filterDoctorsByProperty([...doctorsWithInfo], 'isPediatrician', true);
-      const specialitiesPedetricians = filterSpecialitiesByDoctors([...specialities], pedetiatriciansFirst);
+      filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'isPediatrician', true);
 
-      updateSortedData([...pedetiatriciansFirst], [...specialitiesPedetricians]);
-
-      if (currentCityId) {
-        updateVisibleDoctorsWithCity()
-
-        return;
-      }
-
-      updateVisibleDoctors(newDoctors, newSpecialities);
+    } else if (date) {
+      filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'isPediatrician', false);
     }
 
-    else if (date) {
-      const noPedetiatricians = filterDoctorsByProperty([...doctorsWithInfo], 'isPediatrician', false);
-      const specialitiesAdults = filterSpecialitiesByDoctors([...specialities], noPedetiatricians);
-
-      updateSortedData([...noPedetiatricians], [...specialitiesAdults]);
-
-      if (currentCityId) {
-        updateVisibleDoctorsWithCity()
-
-        return;
-      }
-
-      updateVisibleDoctors(newDoctors, newSpecialities);
-
-      return;
+    if (currentCityId > 0) {
+      filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'cityId', currentCityId);
     }
 
-    if (currentCityId && !date) {
-      const doctorsFromCity = filterDoctorsByProperty([...doctorsWithInfo], 'cityId', currentCityId);
-      const specialitiesFromCity = filterSpecialitiesByDoctors([...specialities], doctorsFromCity);
-
-      updateSortedData([...doctorsFromCity], [...specialitiesFromCity]);
+    if (currentSpecialityId > 0) {
+      filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'specialityId', currentSpecialityId);
     }
 
-    updateVisibleDoctors(newDoctors, newSpecialities);
+    setIsDoctorPickedFirst(false);
+    setvisibleDoctors(filteredDoctors);
   }
 
   useEffect(() => {
-    verifyAllData();
+    if (!isDoctorPickedFirst) {
+      setValue('doctor', '');
+    }
 
-  }, [child, date])
+    filterAllDoctors();
+
+  }, [date, city, speciality]);
+
+  function filterSpecialitiesBySex(specialitiesArray: Speciality[], sex: string) {
+    return specialitiesArray.filter(speciality => {
+      if (!speciality.params || ('gender' in speciality.params && speciality.params.gender === sex)) {
+        return speciality;
+      }
+    });
+  }
+
+  const filterAllSpecialities = () => {
+    let filteredSpecialities = [...specialities];
+
+    filteredSpecialities = filteredSpecialities.filter(specialityItem => {
+      if (specialityItem.params && ('minAge' in specialityItem.params && specialityItem.params.minAge > currentAge)) {
+        return false
+      }
+
+      if (specialityItem.params && ('maxAge' in specialityItem.params && specialityItem.params.maxAge < currentAge)) {
+        return false
+      }
+
+      return true;
+    })
+
+    if (sex === 'Male') {
+      filteredSpecialities = filterSpecialitiesBySex(filteredSpecialities, 'Male');
+    }
+
+    if (sex === 'Female') {
+      filteredSpecialities = filterSpecialitiesBySex(filteredSpecialities, 'Female');
+    }
+
+    setVisibleSpecialities(filteredSpecialities);
+  }
 
   useEffect(() => {
-    if (city) {
-      verifyAllData();
+    filterAllSpecialities();
+  }, [sex, date]);
+
+  const setUpDoctorInfo = () => {
+    const currentDoctor = visibleDoctors.find(doctorProp => doctorProp.name === doctor) || null;
+
+    if (!city && currentDoctor) {
+      const currentDoctorCity = currentDoctor.cityId;
+      const currentCity = cities.find(city => city.id === currentDoctorCity)?.name || '';
+
+      setValue('city', currentCity);
     }
-  }, [city])
+
+    if (!speciality && currentDoctor) {
+      const currentDoctorSpecialityId = currentDoctor.specialityId;
+      const currentSpeciality = specialities.find(speciality => speciality.id === currentDoctorSpecialityId)?.name || '';
+
+      setValue('speciality', currentSpeciality);
+    }
+
+    if (!city || !speciality) {
+      setIsDoctorPickedFirst(true);
+    }
+  }
+
+  useEffect(() => {
+    setUpDoctorInfo();
+  }, [doctor]);
   
   return (
     <>
@@ -164,13 +184,13 @@ export const Form: React.FC = () => {
         register={register}
         error={errors}
         required={true}
-        pattern={validation.date(watch('date'))}
+        pattern={validation.date(date)}
        />
 
       <Select
         name="sex"
         register={register}
-        value={watch("sex")}
+        value={sex}
         error={errors}
         required={true}
         data={sexData}
@@ -179,7 +199,7 @@ export const Form: React.FC = () => {
       <Select
         name="city"
         register={register}
-        value={watch("city")}
+        value={city}
         error={errors}
         required={true}
         data={cities}
@@ -189,7 +209,7 @@ export const Form: React.FC = () => {
         name="speciality"
         title="Doctor Speciality"
         register={register}
-        value={watch("speciality")}
+        value={speciality}
         error={errors}
         data={visibleSpecialities}
       />
@@ -197,10 +217,10 @@ export const Form: React.FC = () => {
       <Select
         name="doctor"
         register={register}
-        value={watch("doctor")}
+        value={doctor}
         error={errors}
         required={true}
-        data={visibleDoctorsWithInfo}
+        data={visibleDoctors}
       />
 
       <Input

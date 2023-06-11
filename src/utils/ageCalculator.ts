@@ -25,3 +25,21 @@ export function isUnderage(dateInput: string) {
   // If none of the conditions above are met, the person is 18 years or older
   return false;
 }
+
+export function getCurrentAge(dateInput: string) {
+  const inputDate = new Date(dateInput);
+  const currentDate = new Date();
+  
+  const yearsDiff = currentDate.getFullYear() - inputDate.getFullYear();
+  
+  // Check if the person has not had their birthday yet this year
+  const hasBirthdayPassed = (
+    currentDate.getMonth() > inputDate.getMonth() ||
+    (currentDate.getMonth() === inputDate.getMonth() && currentDate.getDate() >= inputDate.getDate())
+  );
+  
+  // Subtract 1 from the age if the person has not had their birthday yet this year
+  const currentAge = hasBirthdayPassed ? yearsDiff : yearsDiff - 1;
+  
+  return currentAge;
+}

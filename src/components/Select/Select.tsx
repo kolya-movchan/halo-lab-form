@@ -53,7 +53,8 @@ export const Select: React.FC<Props> = ({
             }
           })}
         >
-          <option value="" disabled>Choose</option>
+            <option value="" disabled>Choose</option>
+
             {data && data.map(item => {
               const { id, name } = item;
 
