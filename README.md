@@ -1,10 +1,12 @@
 # INTRO
+Welcome to my project, a comprehensive and user-friendly form with robust error handling. The form serves as an interactive interface for capturing user input and processing it securely. By implementing this form, I aimed to provide a seamless and efficient user experience while ensuring data integrity and validation.
+
+To handle form validation and data management, I integrated the React-Hook-Form library. This powerful library provided a declarative and intuitive approach to form handling, simplifying the implementation of validation rules, error messages, and submission logic. With React-Hook-Form, I was able to enhance the form's functionality while reducing code complexity.
+
 
 [DEMO LINK](https://kolya-movchan.github.io/halo-lab-form)
 
 # TECHNOLOGIES:
-
-To complete this project, I utilized the following technologies:
 
 ## Vite
 Vite: The project was built using the Vite framework, which served as the template for development. Vite is a modern build tool that offers a fast and efficient development experience for JavaScript-based applications.
@@ -43,7 +45,7 @@ npm: It allowed me to manage project dependencies and install various libraries 
 Prettier and ESLint: They help maintain consistent coding styles, catch potential errors, and improve code quality and readability.
 
 ## Git and GitHub
-Git and GitHub: I used Git and GitHub to track and manage changes in the project, and host the project.
+Git and GitHub: I used Git and GitHub to track and manage changes in the project, and host the project.The use of Git and GitHub in this project allows for version control, and easy management of the source code. It promotes a structured and organized development process, ensuring the project's integrity and facilitating seamless teamwork.
 
 ## Clean and Organized Code
 Clean and Organized Code: The project followed a coding style that emphasized clean and well-organized code with proper indentation and consistent formatting. The code was structured in a logical and readable manner, making it easier for developers to understand and maintain. The project also employed naming conventions for variables, functions, and CSS classes. Consistent naming conventions helped in understanding the purpose and functionality of different code components. It promoted self-documenting code, reducing the need for excessive comments and making the codebase more comprehensible.
