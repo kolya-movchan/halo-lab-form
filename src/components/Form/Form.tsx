@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unused-modules */
 import React, { useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DevTool } from '@hookform/devtools';
@@ -21,12 +22,14 @@ export const Form: React.FC = () => {
   const sexData: Sex[] = [{ id: 1, name: 'Male' }, { id: 2, name: 'Female' }];
   const [cities, setCities] = useState<City[]>([]);
   const [specialities, setSpecialities] = useState<Speciality[]>([]);
+  const [visibleSpecialities, setVisibleSpecialities] = useState<Speciality[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorsWithInfo, setDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
   const [visibleDoctorsWithInfo, setVisibleDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
 
   const phone = watch("mobile number");
   const date = watch("date");
+  const city = watch("city");
 
   const child = date ? isUnderage(date): false;
 
@@ -34,8 +37,9 @@ export const Form: React.FC = () => {
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
   const bothAreCorrect = emailCanBeSkipped && phoneCanBeSkipped;
 
-  const updateVisibleDoctors = (updates: DoctorWithInfo[]) => {
-    setVisibleDoctorsWithInfo([...updates]); // Create a new array to trigger re-render
+  const updateVisibleDoctors = (updatesDoctor: DoctorWithInfo[], updatesSpecialities: Speciality[] = [] ) => {
+    setVisibleDoctorsWithInfo([...updatesDoctor]); // Create a new array to trigger re-render
+    setVisibleSpecialities([...updatesSpecialities])
   };
 
   useEffect(() => {
@@ -46,31 +50,99 @@ export const Form: React.FC = () => {
 
   useEffect(() => {
     const doctorsExperience = doctors.map(doctor => {
-    const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
-  
-      return {
-        ...doctor,
-        speciality: targetSpeciality?.name || 'undefined specialist'
-      }
+      const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
+    
+        return {
+          ...doctor,
+          speciality: targetSpeciality?.name || 'undefined specialist'
+        }
     });
 
     setDoctorsWithInfo(doctorsExperience);
     setVisibleDoctorsWithInfo(doctorsExperience);
+    setVisibleSpecialities(specialities);
   }, [doctors, specialities])
 
-  useEffect(() => {
-    if (child) {
-      const pedetiatriciansFirst = [...doctorsWithInfo].filter(doctor => doctor.isPediatrician);
+  const verifyAllData = () => {
+    const newDoctors: DoctorWithInfo[] = [];
+    const newSpecialities: Speciality[] = [];
 
-      updateVisibleDoctors(pedetiatriciansFirst);
+    const currentCityId = cities.find(cityItem => cityItem.name === city)?.id;
 
-    } else if (date) {
-      const noPedetiatricians = [...doctorsWithInfo].filter(doctor => !doctor.isPediatrician);
-
-      updateVisibleDoctors(noPedetiatricians);
+    function filterDoctorsByProperty(doctorsArray: DoctorWithInfo[], propertyName: string, propertyValue: boolean | number) {
+      return [...doctorsArray].filter(doctor => doctor[propertyName as keyof DoctorWithInfo] === propertyValue);
     }
 
+    function filterSpecialitiesByDoctors(specialitiesArray: Speciality[], doctorsArray: DoctorWithInfo[]) {
+      return [...specialitiesArray].filter(speciality => {
+        return doctorsArray.some(doctor => doctor.specialityId === speciality.id);
+      });
+    }
+
+    function updateSortedData(doctorsArray: DoctorWithInfo[], specialitiesArray: Speciality[]) {
+      newDoctors.push(...doctorsArray);
+      newSpecialities.push(...specialitiesArray);
+    }
+
+    function updateVisibleDoctorsWithCity() {
+      const doctorsSortedByCity = filterDoctorsByProperty(newDoctors, 'cityId', currentCityId as number);
+      const updatedSpecialities = filterSpecialitiesByDoctors(newSpecialities, doctorsSortedByCity);
+
+      updateVisibleDoctors(doctorsSortedByCity, updatedSpecialities);
+    }
+
+    if (child) {
+      const pedetiatriciansFirst = filterDoctorsByProperty([...doctorsWithInfo], 'isPediatrician', true);
+      const specialitiesPedetricians = filterSpecialitiesByDoctors([...specialities], pedetiatriciansFirst);
+
+      updateSortedData([...pedetiatriciansFirst], [...specialitiesPedetricians]);
+
+      if (currentCityId) {
+        updateVisibleDoctorsWithCity()
+
+        return;
+      }
+
+      updateVisibleDoctors(newDoctors, newSpecialities);
+    }
+
+    else if (date) {
+      const noPedetiatricians = filterDoctorsByProperty([...doctorsWithInfo], 'isPediatrician', false);
+      const specialitiesAdults = filterSpecialitiesByDoctors([...specialities], noPedetiatricians);
+
+      updateSortedData([...noPedetiatricians], [...specialitiesAdults]);
+
+      if (currentCityId) {
+        updateVisibleDoctorsWithCity()
+
+        return;
+      }
+
+      updateVisibleDoctors(newDoctors, newSpecialities);
+
+      return;
+    }
+
+    if (currentCityId && !date) {
+      const doctorsFromCity = filterDoctorsByProperty([...doctorsWithInfo], 'cityId', currentCityId);
+      const specialitiesFromCity = filterSpecialitiesByDoctors([...specialities], doctorsFromCity);
+
+      updateSortedData([...doctorsFromCity], [...specialitiesFromCity]);
+    }
+
+    updateVisibleDoctors(newDoctors, newSpecialities);
+  }
+
+  useEffect(() => {
+    verifyAllData();
+
   }, [child, date])
+
+  useEffect(() => {
+    if (city) {
+      verifyAllData();
+    }
+  }, [city])
   
   return (
     <>
@@ -119,7 +191,7 @@ export const Form: React.FC = () => {
         register={register}
         value={watch("speciality")}
         error={errors}
-        data={specialities}
+        data={visibleSpecialities}
       />
 
       <Select
@@ -171,8 +243,9 @@ export const Form: React.FC = () => {
 // Doctor speciality - необязательно; список профессий врача, которые нужно получить из API https://run.mocky.io/v3/e8897b19-46a0-4124-8454-0938225ee9ca
 // Doctor - обязательно; список, в котором указаны ФИО докторов и их опыт; получить из API https://run.mocky.io/v3/3d1c993c-cd8e-44c3-b1cb-585222859c21
 // Email / Mobile number - хотя бы одно из полей обязательно, должны валидироваться в соответствии с предназначением
-
 // При выборе даты рождения, список докторов должен фильтроваться по категории взрослый/детский врач.
+
+
 // При выборе города, список врачей должен фильтроваться по выбранному городу
 // При выборе пола, список специальностей врача должен фильтроваться по назначению специальности для пола; например, в списке не должно быть уролога либо гинеколога для неподходящего пола пациента.
 // При выборе специальности врача, список врачей фильтруется по выбранной специальности.
