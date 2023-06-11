@@ -1,5 +1,6 @@
 {
   "name": "halo-lab-form",
+  "homepage": "https://kolya-movchan.github.io/halo-lab-form/",
   "version": "0.0.0",
   "description": "React Typescript Form Test Task",
   "repository": {
@@ -12,7 +13,6 @@
     "form"
   ],
   "license": "MIT",
-  "homepage": "https://kolya-movchan.github.io/halo-lab-form",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
