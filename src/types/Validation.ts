@@ -2,9 +2,9 @@ import { Error } from '../types/Error'
 
 export type Validation = {
   name: DataFormat,
-  date: (value: string) => DataFormat,
   email: DataFormat,
   phone: DataFormat,
+  date: (value: string) => DataFormat,
 }
 
 export interface DataFormat {
