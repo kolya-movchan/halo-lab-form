@@ -1,8 +1,7 @@
-/* eslint-disable import/no-unused-modules */
 import React, { Fragment } from 'react'
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import classNames from 'classnames';
 
-import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { Inputs } from 'types/Inputs';
 import { City } from 'types/City';
 import { Sex } from 'types/Sex';
@@ -11,17 +10,15 @@ import { DoctorWithInfo } from 'types/Doctor';
 
 type Props = {
   name: keyof Inputs,
-  title?: string,
   register: UseFormRegister<Inputs>,
   value: string,
   error: FieldErrors<Inputs>,
   required?: boolean,
-  data?: City[] | Sex[] | Speciality[] | DoctorWithInfo[],
+  data: City[] | Sex[] | Speciality[] | DoctorWithInfo[],
 };
 
 export const Select: React.FC<Props> = ({
   name,
-  title,
   register,
   value = '',
   error,
@@ -32,20 +29,22 @@ export const Select: React.FC<Props> = ({
   const indexName = name as keyof FieldErrors<Inputs>;
 
   return (
-    <label>
+    <label className='label'>
       <div>
         {required && (
           <span className='required'>*</span>
         )}
-        <span>{title ? title : nameUpperCase}</span>
+
+        <span className='span'>{nameUpperCase}</span>
       </div>
 
       <div className="select">
         <select
-          className={classNames(
-            { 'error-container': error[indexName] }
-        )}
           value={value}
+          className={classNames(
+            'selectLocal',
+            { 'error-container': error[indexName] }
+          )}
           {...register(name, {
             required: {
               value: required,
@@ -53,31 +52,35 @@ export const Select: React.FC<Props> = ({
             }
           })}
         >
-            <option value="" disabled>Choose</option>
+          <option value="" disabled>
+            {data?.length > 0 ? 'Choose' : '--'}
+          </option>
 
-            {data && data.map(item => {
-              const { id, name } = item;
+          {data && data.map(item => {
+            const { id, name } = item;
 
-              if ('specialityId' in item) {
-                const { surname, speciality } = item;
-
-                return (
-                  <Fragment key={id}>
-                    <option value={name}>{name} {surname} - {speciality}</option>
-                  </Fragment>
-                )
-              }
+            if ('specialityId' in item) {
+              const { surname, speciality } = item;
 
               return (
                 <Fragment key={id}>
-                  <option value={name}>{name}</option>
+                  <option value={name}>{name} {surname} - {speciality}</option>
                 </Fragment>
-                )
-            })}
+              )
+            }
+
+            return (
+              <Fragment key={id}>
+                <option value={name}>{name}</option>
+              </Fragment>
+            )
+          })}
         </select>
       </div>
 
-      <p className='error'>{ error[indexName]?.message}</p>
+      <p className='error'>
+        {error[indexName]?.message}
+      </p>
     </label>
   )
 }

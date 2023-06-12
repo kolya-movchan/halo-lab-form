@@ -1,35 +1,38 @@
 /* eslint-disable import/no-unused-modules */
 import React, { useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
+import { validation, handleKeyPress, validateInput } from 'utils/validation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { validation, handleKeyPress, validateInput } from 'utils/validation';
+import { getCities, getDoctors, getSpeciality } from 'api/fetch';
+import { emailValidation, phoneValidation } from 'utils/regex';
+import { getCurrentAge, isUnderage } from 'utils/ageCalculator';
 import { Input } from 'components/Input';
 import { Select } from 'components/Select';
+import { Logo } from 'components/Logo';
+
 import { Inputs } from 'types/Inputs';
-import { emailValidation, phoneValidation } from 'utils/regex';
 import { City } from 'types/City';
 import { Sex } from 'types/Sex';
 import { Speciality } from 'types/Speciality';
 import { Doctor, DoctorWithInfo } from 'types/Doctor';
-import { getCities, getDoctors, getSpeciality } from 'api/request';
-import { getCurrentAge, isUnderage } from 'utils/ageCalculator';
-import { Logo } from 'components/Logo';
 
 export const Form: React.FC = () => {
   const { register, setValue, handleSubmit, watch, reset, formState: { errors } } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = data => {
-    console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = () => {
+    // show success pop-up
     toast.success('Form submitted successfully!');
+    // remove all fields data
     reset();
+    // make Halo Lab to be a green light
     setIsSuccess(true);
+    // reset Halo Lab light to transparent
     setTimeout(() => {
       setIsSuccess(false);
     }, 6300);
   };
 
-  const sexData: Sex[] = [{ id: 1, name: 'Male' }, { id: 2, name: 'Female' }];
   const [cities, setCities] = useState<City[]>([]);
   const [specialities, setSpecialities] = useState<Speciality[]>([]);
   const [visibleSpecialities, setVisibleSpecialities] = useState<Speciality[]>([]);
@@ -38,6 +41,8 @@ export const Form: React.FC = () => {
   const [visibleDoctors, setvisibleDoctors] = useState<DoctorWithInfo[]>([]);
   const [isDoctorPickedFirst, setIsDoctorPickedFirst] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  
+  const sexData: Sex[] = [{ id: 1, name: 'Male' }, { id: 2, name: 'Female' }];
 
   const phone = watch("mobile number");
   const date = watch("date");
@@ -60,6 +65,7 @@ export const Form: React.FC = () => {
   }, [])
 
   useEffect(() => {
+    // define doctor's speciality from the loaded specialities to reflect the valid data
     const doctorsExperience = doctors.map(doctor => {
     const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
     
@@ -73,11 +79,11 @@ export const Form: React.FC = () => {
     setvisibleDoctors(doctorsExperience);
   }, [doctors, specialities]);
 
-
   function filterDoctorsByProperty(doctorsArray: DoctorWithInfo[], propertyName: string, propertyValue: boolean | number) {
     return doctorsArray.filter(doctor => doctor[propertyName as keyof DoctorWithInfo] === propertyValue);
   }
 
+  // this function will filter the doctor's list according to the date of birth, city and speciality choosed taking the copy of data from the pre-saved list of doctors called doctorsWithInfo and updating the visibleDoctors
   const filterAllDoctors = () => {
     let filteredDoctors = [...doctorsWithInfo];
     const currentCityId = cities.find(cityItem => cityItem.name === city)?.id || 0;
@@ -98,11 +104,13 @@ export const Form: React.FC = () => {
       filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'specialityId', currentSpecialityId);
     }
 
+    // setting this isDoctorPickedFirst to false in order for useEffect's check of !isDoctorPickedFirst remove the doctor's value with further data change
     setIsDoctorPickedFirst(false);
     setvisibleDoctors(filteredDoctors);
   }
 
   useEffect(() => {
+    // if data, city or speciality is clicked thus, it was not a click on the doctor directly, we need to remove the picked doctor since any of the change can impact the visible list of the doctors
     if (!isDoctorPickedFirst) {
       setValue('doctor', '');
     }
@@ -119,6 +127,7 @@ export const Form: React.FC = () => {
     });
   }
 
+  // this is a function for controling specialities depending on the date of birth selected and the sex
   const filterAllSpecialities = () => {
     let filteredSpecialities = [...specialities];
 
@@ -149,6 +158,7 @@ export const Form: React.FC = () => {
     filterAllSpecialities();
   }, [sex, date]);
 
+  // fill in city and speciality if they are empty, but the user decided to choose the doctor firstly
   const setUpDoctorInfo = () => {
     const currentDoctor = visibleDoctors.find(doctorProp => doctorProp.name === doctor) || null;
 
@@ -166,6 +176,7 @@ export const Form: React.FC = () => {
       setValue('speciality', currentSpeciality);
     }
 
+    // if there is no city or speciality we set doctorPickedFirst to true for !isDoctorPickedFirst check in useEffect [date, city, speciality] get failed and do not remove the selected doctor
     if (!city || !speciality) {
       setIsDoctorPickedFirst(true);
     }
@@ -177,7 +188,11 @@ export const Form: React.FC = () => {
   
   return (
     <>
-     <form onSubmit={handleSubmit(onSubmit)} noValidate>
+     <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className='form'
+     >
       <Input
         type="text"
         name="name"
@@ -218,7 +233,6 @@ export const Form: React.FC = () => {
 
       <Select
         name="speciality"
-        title="Doctor Speciality"
         register={register}
         value={speciality}
         error={errors}
@@ -240,6 +254,7 @@ export const Form: React.FC = () => {
         register={register}
         error={errors}
         pattern = {validation.email}
+        max={50}
         required={!emailCanBeSkipped || bothAreCorrect}
        />
 

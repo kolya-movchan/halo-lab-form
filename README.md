@@ -33,7 +33,7 @@ For displaying notifications and providing feedback to users, I utilized React T
 To style the user interface of my form, I chose to use Bulma, a modern CSS framework. Bulma provided a set of responsive and flexible components that helped me create a visually appealing and consistent UI. With its grid system, responsive design, and pre-built styling components, Bulma allowed me to quickly develop a well-structured and visually appealing form. Its modular and customizable nature made it easy to integrate into my project and adapt to my specific design requirements.
 
 ## Classnames Library
-Classnames: I utilized classnames to manage dynamic class assignments based on specific conditions, enhancing the flexibility and readability of the code.
+I utilized classnames to manage dynamic class assignments based on specific conditions, enhancing the flexibility and readability of the code.
 
 ## Regex
 I utilized regular expressions (Regex) to define and enforce specific validation patterns for the input fields in my form. By leveraging Regex, I was able to ensure that user input met certain requirements. By incorporating Regex, I enhanced the accuracy and reliability of the form data validation, resulting in a better user experience and preventing erroneous or malicious input.

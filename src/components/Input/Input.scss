@@ -1,0 +1,29 @@
+@import '../../styles/variables.scss';
+
+.span {
+  color: #333;
+  font-weight: bold;
+}
+
+.label:nth-child(1n) {
+  margin: 0;
+}
+
+.label {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+
+  &:last-of-type {
+    margin-bottom: 10px;
+  }
+}
+
+.required {
+  color: $error-color;
+  margin-right: 1px;
+
+  &--invisible {
+    visibility: hidden;
+  }
+}

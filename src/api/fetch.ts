@@ -1,7 +1,8 @@
+import { fetchGet } from "./api";
+
 import { City } from "types/City";
 import { Doctor } from "types/Doctor";
 import { Speciality } from "types/Speciality";
-import { fetchGet } from "./api";
 
 export const getCities = (dispatch: React.Dispatch<React.SetStateAction<City[]>>) => {
   fetchGet<City[]>('9fcb58ca-d3dd-424b-873b-dd3c76f000f4')

@@ -1,8 +1,7 @@
-/* eslint-disable import/no-unused-modules */
 import React, { KeyboardEventHandler } from 'react'
+import { FieldErrors, UseFormRegister } from 'react-hook-form'
 import classNames from 'classnames'
 
-import { FieldErrors, UseFormRegister } from 'react-hook-form'
 import { Inputs } from 'types/Inputs'
 import { DataFormat } from 'types/Validation'
 
@@ -13,11 +12,10 @@ type Props = {
   register: UseFormRegister<Inputs>,
   error: FieldErrors<Inputs>,
   defaultValue?: string,
-  pattern?: DataFormat,
+  pattern: DataFormat,
   onKeyPress?: KeyboardEventHandler<HTMLInputElement> | undefined,
   max?: number,
-  min?: number,
-  required?: boolean
+  required: boolean
 }
 
 export const Input: React.FC<Props> = ({
@@ -28,31 +26,37 @@ export const Input: React.FC<Props> = ({
   error,
   defaultValue = '',
   pattern,
-  onKeyPress = undefined,
+  onKeyPress,
   max,
-  min = 0,
   required = false,
 }) => {
   const nameUpperCase = name[0].toUpperCase() + name.slice(1);
 
   return (
-    <label>
+    <label className='label'>
       <div>
-        <span className={classNames(
-          'required',
-          { 'required--invisible': !required }
-        )}>*</span>
-        <span>{nameUpperCase}</span>
+        <span
+          className={classNames(
+            'required',
+            { 'required--invisible': !required }
+          )}
+        >
+          *
+        </span>
+
+        <span className='span'>{nameUpperCase}</span>
       </div>
 
       <input
         defaultValue={defaultValue}
+        type={type}
+        placeholder={placeholder ? placeholder : name}
+        maxLength={max}
+        onKeyPress={onKeyPress}
         className={classNames(
           "input",
           { 'error-container': error[name as keyof FieldErrors<Inputs>] }
         )}
-        type={type}
-        placeholder={placeholder ? placeholder : name}
         {...register(name, {
           required: {
             value: required,
@@ -60,15 +64,13 @@ export const Input: React.FC<Props> = ({
               ? `Email or Mobile number is required`
               : `${nameUpperCase} is required`,
           },
-
           pattern,
         })}
-        onKeyPress={onKeyPress}
-        maxLength={max}
-        minLength={min}
       />
 
-      <p className='error'>{ error[name as keyof FieldErrors<Inputs>]?.message}</p>
+      <p className='error'>
+        {error[name as keyof FieldErrors<Inputs>]?.message}
+      </p>
     </label>
   )
 }
