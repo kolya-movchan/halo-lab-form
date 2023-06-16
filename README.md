@@ -1,5 +1,5 @@
 # INTRO
-Welcome to my project, a comprehensive and user-friendly form with robust error handling. The form serves as an interactive interface for capturing user input and processing it securely. By implementing this form, I aimed to provide a seamless and efficient user experience while ensuring data integrity and validation.
+Welcome to my project, a comprehensive and user-friendly form with robust error handling. The form serves as an interactive interface for capturing user input and processing it securely. By implementing this form, I aimed to provide a seamless and efficient user experience while ensuring data integrity.
 
 To handle form validation and data management, I integrated the React-Hook-Form library. This powerful library provided a declarative and intuitive approach to form handling, simplifying the implementation of validation rules, error messages, and submission logic. With React-Hook-Form, I was able to enhance the form's functionality while reducing code complexity.
 
