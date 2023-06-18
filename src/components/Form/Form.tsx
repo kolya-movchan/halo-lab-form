@@ -1,11 +1,11 @@
 /* eslint-disable import/no-unused-modules */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { validation, handleKeyPress, validateInput } from 'utils/validation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { getCities, getDoctors, getSpeciality } from 'api/fetch';
+import { getCities, getDoctors, getSpecialities } from 'api/fetch';
 import { emailValidation, phoneValidation } from 'utils/regex';
 import { getCurrentAge, isUnderage } from 'utils/ageCalculator';
 import { Input } from 'components/Input';
@@ -16,7 +16,8 @@ import { Inputs } from 'types/Inputs';
 import { City } from 'types/City';
 import { Sex } from 'types/Sex';
 import { Speciality } from 'types/Speciality';
-import { Doctor, DoctorWithInfo } from 'types/Doctor';
+import { Doctor } from 'types/Doctor';
+import { filterDoctorsByProperty } from 'utils/filter';
 
 export const Form: React.FC = () => {
   const { register, setValue, handleSubmit, watch, reset, formState: { errors } } = useForm<Inputs>();
@@ -25,7 +26,7 @@ export const Form: React.FC = () => {
     toast.success('Form submitted successfully!');
     // remove all fields data
     reset();
-    // make Halo Lab to be a green light
+    // make Halo Lab shines a green light
     setIsSuccess(true);
     // reset Halo Lab light to transparent
     setTimeout(() => {
@@ -37,8 +38,6 @@ export const Form: React.FC = () => {
   const [specialities, setSpecialities] = useState<Speciality[]>([]);
   const [visibleSpecialities, setVisibleSpecialities] = useState<Speciality[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [doctorsWithInfo, setDoctorsWithInfo] = useState<DoctorWithInfo[]>([]);
-  const [visibleDoctors, setvisibleDoctors] = useState<DoctorWithInfo[]>([]);
   const [isDoctorPickedFirst, setIsDoctorPickedFirst] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   
@@ -54,41 +53,44 @@ export const Form: React.FC = () => {
   const child = date ? isUnderage(date): false;
   const currentAge = getCurrentAge(date);
 
+  console.log('child', child);
+  console.log('currentAge', currentAge);
+
   const emailCanBeSkipped = phoneValidation.test(phone) && phone.length >= 12;
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
   const bothAreCorrect = emailCanBeSkipped && phoneCanBeSkipped;
 
   useEffect(() => {
     getCities(setCities);
-    getSpeciality(setSpecialities, setVisibleSpecialities);
+    getSpecialities(setSpecialities, setVisibleSpecialities);
     getDoctors(setDoctors);
   }, [])
 
-  useEffect(() => {
-    // define doctor's speciality from the loaded specialities to reflect the valid data
-    const doctorsExperience = doctors.map(doctor => {
-    const targetSpeciality = specialities.find(speciality => speciality.id === doctor.specialityId);
-    
-        return {
-          ...doctor,
-          speciality: targetSpeciality?.name || 'undefined specialist'
-        }
-    });
+  const doctorsWithInfo = useMemo(() => {
+    const specialitiesLookup: Record<string, Speciality> = specialities.reduce(
+      (lookup, speciality) => {
+        lookup[speciality.id] = speciality;
+        return lookup;
+      },
+      {} as Record<string, Speciality>
+    );
 
-    setDoctorsWithInfo(doctorsExperience);
-    setvisibleDoctors(doctorsExperience);
-  }, [doctors, specialities]);
+    const doctorsWithSpeciality: Doctor[] = doctors.map((doctor) => ({
+      ...doctor,
+      speciality: specialitiesLookup[doctor.specialityId]?.name || 'undefined specialist',
+    }));
 
-  function filterDoctorsByProperty(doctorsArray: DoctorWithInfo[], propertyName: string, propertyValue: boolean | number) {
-    return doctorsArray.filter(doctor => doctor[propertyName as keyof DoctorWithInfo] === propertyValue);
-  }
+    return doctorsWithSpeciality;
 
-  // this function will filter the doctor's list according to the date of birth, city and speciality choosed taking the copy of data from the pre-saved list of doctors called doctorsWithInfo and updating the visibleDoctors
-  const filterAllDoctors = () => {
-    let filteredDoctors = [...doctorsWithInfo];
+  }, [specialities, doctors]);
+
+  const visibleDoctors = useMemo(() => {
+    let filteredDoctors = doctorsWithInfo;
+
     const currentCityId = cities.find(cityItem => cityItem.name === city)?.id || 0;
     const currentSpecialityId = specialities.find(specialityItem => specialityItem.name === speciality)?.id || 0;
 
+    // these functions will filter the doctor's list according to the date of birth, city and speciality choosed taking the copy of data from the pre-saved list of doctors called doctorsWithInfo and updating the visibleDoctors
     if (child) {
       filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'isPediatrician', true);
 
@@ -104,10 +106,9 @@ export const Form: React.FC = () => {
       filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'specialityId', currentSpecialityId);
     }
 
-    // setting this isDoctorPickedFirst to false in order for useEffect's check of !isDoctorPickedFirst remove the doctor's value with further data change
-    setIsDoctorPickedFirst(false);
-    setvisibleDoctors(filteredDoctors);
-  }
+    return filteredDoctors;
+
+  }, [doctorsWithInfo, date, child, city, speciality, cities, specialities]);
 
   useEffect(() => {
     // if data, city or speciality is clicked thus, it was not a click on the doctor directly, we need to remove the picked doctor since any of the change can impact the visible list of the doctors
@@ -115,7 +116,7 @@ export const Form: React.FC = () => {
       setValue('doctor', '');
     }
 
-    filterAllDoctors();
+    setIsDoctorPickedFirst(false);
 
   }, [date, city, speciality]);
 
@@ -129,7 +130,7 @@ export const Form: React.FC = () => {
 
   // this is a function for controling specialities depending on the date of birth selected and the sex
   const filterAllSpecialities = () => {
-    let filteredSpecialities = [...specialities];
+    let filteredSpecialities = specialities;
 
     filteredSpecialities = filteredSpecialities.filter(specialityItem => {
       if (specialityItem.params && ('minAge' in specialityItem.params && specialityItem.params.minAge > currentAge)) {
@@ -158,9 +159,10 @@ export const Form: React.FC = () => {
     filterAllSpecialities();
   }, [sex, date]);
 
-  // fill in city and speciality if they are empty, but the user decided to choose the doctor firstly
-  const setUpDoctorInfo = () => {
-    const currentDoctor = visibleDoctors.find(doctorProp => doctorProp.name === doctor) || null;
+  useEffect(() => {
+    // fill in city and speciality if they are empty, but the user decided to choose the doctor firstly
+
+    const currentDoctor = doctors.find(doctorProp => doctorProp.name === doctor) || null;
 
     if (!city && currentDoctor) {
       const currentDoctorCity = currentDoctor.cityId;
@@ -180,10 +182,6 @@ export const Form: React.FC = () => {
     if (!city || !speciality) {
       setIsDoctorPickedFirst(true);
     }
-  }
-
-  useEffect(() => {
-    setUpDoctorInfo();
   }, [doctor]);
   
   return (

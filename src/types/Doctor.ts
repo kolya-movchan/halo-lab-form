@@ -5,8 +5,5 @@ export interface Doctor {
   specialityId: number,
   isPediatrician: boolean,
   cityId: number,
-}
-
-export interface DoctorWithInfo extends Doctor {
-  speciality: string
+  speciality: string,
 }
