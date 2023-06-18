@@ -6,6 +6,7 @@ import { Inputs } from 'types/Inputs';
 import { City } from 'types/City';
 import { Sex } from 'types/Sex';
 import { Speciality } from 'types/Speciality';
+import { Doctor } from 'types/Doctor';
 
 type Props = {
   name: keyof Inputs,
@@ -13,7 +14,7 @@ type Props = {
   value: string,
   error: FieldErrors<Inputs>,
   required?: boolean,
-  data: City[] | Sex[] | Speciality[],
+  data: City[] | Sex[] | Speciality[] | Doctor[],
 };
 
 export const Select: React.FC<Props> = ({
