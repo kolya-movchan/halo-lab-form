@@ -17,7 +17,7 @@ import { City } from 'types/City';
 import { Sex } from 'types/Sex';
 import { Speciality } from 'types/Speciality';
 import { Doctor } from 'types/Doctor';
-import { filterDoctorsByProperty } from 'utils/filter';
+import { filterDoctorsByProperty, filterHiddenSpecialities, filterSpecialitiesBySex } from 'utils/filter';
 
 export const Form: React.FC = () => {
   const { register, setValue, handleSubmit, watch, reset, formState: { errors } } = useForm<Inputs>();
@@ -53,18 +53,9 @@ export const Form: React.FC = () => {
   const child = date ? isUnderage(date): false;
   const currentAge = getCurrentAge(date);
 
-  console.log('child', child);
-  console.log('currentAge', currentAge);
-
   const emailCanBeSkipped = phoneValidation.test(phone) && phone.length >= 12;
   const phoneCanBeSkipped = emailValidation.test(watch("email"));
   const bothAreCorrect = emailCanBeSkipped && phoneCanBeSkipped;
-
-  useEffect(() => {
-    getCities(setCities);
-    getSpecialities(setSpecialities, setVisibleSpecialities);
-    getDoctors(setDoctors);
-  }, [])
 
   const doctorsWithInfo = useMemo(() => {
     const specialitiesLookup: Record<string, Speciality> = specialities.reduce(
@@ -91,10 +82,18 @@ export const Form: React.FC = () => {
     const currentSpecialityId = specialities.find(specialityItem => specialityItem.name === speciality)?.id || 0;
 
     // these functions will filter the doctor's list according to the date of birth, city and speciality choosed taking the copy of data from the pre-saved list of doctors called doctorsWithInfo and updating the visibleDoctors
+
+    if (date) {
+      const hiddenSpecialities = filterHiddenSpecialities(specialities, currentAge);
+
+      filteredDoctors = filteredDoctors.filter(doctor => !hiddenSpecialities.includes(doctor.speciality))
+    }
+
     if (child) {
       filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'isPediatrician', true);
+    }
 
-    } else if (date) {
+    if (date && !child) {
       filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'isPediatrician', false);
     }
 
@@ -106,9 +105,20 @@ export const Form: React.FC = () => {
       filteredDoctors = filterDoctorsByProperty(filteredDoctors, 'specialityId', currentSpecialityId);
     }
 
+    if (sex) {
+      const visibleSpecialities = filterSpecialitiesBySex(specialities, sex);
+      filteredDoctors = filteredDoctors.filter(doctor => visibleSpecialities.includes(doctor.speciality))
+    }
+
     return filteredDoctors;
 
-  }, [doctorsWithInfo, date, child, city, speciality, cities, specialities]);
+  }, [doctorsWithInfo, date, child, city, speciality, cities, specialities, sex]);
+
+  useEffect(() => {
+    getCities(setCities);
+    getSpecialities(setSpecialities, setVisibleSpecialities);
+    getDoctors(setDoctors);
+  }, [])
 
   useEffect(() => {
     // if data, city or speciality is clicked thus, it was not a click on the doctor directly, we need to remove the picked doctor since any of the change can impact the visible list of the doctors
@@ -120,16 +130,8 @@ export const Form: React.FC = () => {
 
   }, [date, city, speciality]);
 
-  function filterSpecialitiesBySex(specialitiesArray: Speciality[], sex: string) {
-    return specialitiesArray.filter(speciality => {
-      if (!speciality.params || ('gender' in speciality.params && speciality.params.gender === sex)) {
-        return speciality;
-      }
-    });
-  }
-
   // this is a function for controling specialities depending on the date of birth selected and the sex
-  const filterAllSpecialities = () => {
+  useEffect(() => {
     let filteredSpecialities = specialities;
 
     filteredSpecialities = filteredSpecialities.filter(specialityItem => {
@@ -144,20 +146,13 @@ export const Form: React.FC = () => {
       return true;
     })
 
-    if (sex === 'Male') {
-      filteredSpecialities = filterSpecialitiesBySex(filteredSpecialities, 'Male');
-    }
-
-    if (sex === 'Female') {
-      filteredSpecialities = filterSpecialitiesBySex(filteredSpecialities, 'Female');
+    if (sex) {
+      const visible = filterSpecialitiesBySex(filteredSpecialities, sex);
+      filteredSpecialities = filteredSpecialities.filter(speciality => visible.includes(speciality.name))
     }
 
     setVisibleSpecialities(filteredSpecialities);
-  }
-
-  useEffect(() => {
-    filterAllSpecialities();
-  }, [sex, date]);
+  }, [sex, date, specialities, currentAge]);
 
   useEffect(() => {
     // fill in city and speciality if they are empty, but the user decided to choose the doctor firstly
